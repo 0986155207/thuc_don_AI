@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Đăng ký PWA
     if ('serviceWorker' in navigator) {
-        try { await navigator.serviceWorker.register('./sw.js'); } catch (e) {}
+        try { navigator.serviceWorker.register('./sw.js'); } catch (e) {}
     }
     
     // Banner cài đặt
