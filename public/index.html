@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="description" content="Ứng dụng lập kế hoạch thực đơn tuần với AI Gemini. Ăn xanh, sống khỏe, bảo vệ môi trường. Tiết kiệm chi phí, đủ dinh dưỡng.">
+    <meta name="keywords" content="thực đơn, thực đơn tuần, món ăn việt nam, ăn xanh, sống khỏe, AI gemini, dinh dưỡng">
+    <meta name="author" content="Phan Tấn Tài">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#22c55e">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Thực Đơn Xanh">
+    
+    <!-- iOS Splash Screens -->
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <link rel="apple-touch-startup-image" href="/icons/splash-2048x2732.png" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2)">
+    
+    <!-- Android -->
+    <meta name="application-name" content="Thực Đơn Xanh">
+    
+    <!-- Microsoft -->
+    <meta name="msapplication-TileColor" content="#22c55e">
+    <meta name="msapplication-TileImage" content="/icons/icon-144x144.png">
+    
+    <title>🌱 Thực Đơn Tuần Xanh - AI Gemini</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌱</text></svg>">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Theme Toggle -->
+    <div class="theme-toggle" id="themeToggle">
+        <div class="toggle-icon">🌙</div>
+    </div>
+
+    <!-- PWA Install Button -->
+    <div class="pwa-install-btn" id="pwaInstallBtn" style="display: none;">
+        <button class="btn btn-primary" id="installButton">
+            <span>📱 Cài Đặt Ứng Dụng</span>
+        </button>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <span class="logo-icon">🌱</span>
+                    <span class="logo-text">Thực Đơn Xanh</span>
+                </div>
+                <nav class="nav">
+                    <button class="nav-btn active" data-tab="home">
+                        <span class="nav-icon">🏠</span>
+                        <span class="nav-text">Trang chủ</span>
+                    </button>
+                    <button class="nav-btn" data-tab="ingredients">
+                        <span class="nav-icon">📸</span>
+                        <span class="nav-text">Nguyên liệu</span>
+                    </button>
+                    <button class="nav-btn" data-tab="expenses">
+                        <span class="nav-icon">💰</span>
+                        <span class="nav-text">Chi tiêu</span>
+                    </button>
+                    <button class="nav-btn" data-tab="favorites">
+                        <span class="nav-icon">❤️</span>
+                        <span class="nav-text">Yêu thích</span>
+                    </button>
+                    <button class="nav-btn" data-tab="history">
+                        <span class="nav-icon">📜</span>
+                        <span class="nav-text">Lịch sử</span>
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Tab: Home -->
+            <div class="tab-content active" id="tab-home">
+                <!-- Settings Panel -->
+                <section class="settings-panel">
+                    <h2 class="section-title">⚙️ Cài đặt thực đơn</h2>
+                    
+                    <!-- Voice Input Button -->
+                    <div class="voice-input-container" style="text-align: center; margin-bottom: 2rem;">
+                        <button class="btn btn-voice" id="voiceInputBtn" type="button">
+                            <span class="btn-icon">🎤</span>
+                            <span>Nói Thay Vì Gõ</span>
+                        </button>
+                        <p class="voice-hint" style="margin-top: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">
+                            Nhấn mic và nói sở thích của bạn!
+                        </p>
+                    </div>
+                    
+                    <div class="settings-grid">
+                        <div class="setting-item">
+                            <label for="familySize">👨‍👩‍👧‍👦 Số người trong gia đình</label>
+                            <input type="number" id="familySize" value="4" min="1" max="20">
+                        </div>
+                        <div class="setting-item">
+                            <label for="budget">💰 Ngân sách</label>
+                            <select id="budget">
+                                <option value="tiết kiệm" selected>Tiết kiệm (50k-80k/ngày)</option>
+                                <option value="trung bình">Trung bình (80k-120k/ngày)</option>
+                                <option value="thoải mái">Thoải mái (120k-200k/ngày)</option>
+                            </select>
+                        </div>
+                        <div class="setting-item">
+                            <label for="preferences">🍽️ Sở thích món ăn</label>
+                            <input type="text" id="preferences" placeholder="VD: Món miền Nam, ít dầu mỡ...">
+                        </div>
+                        <div class="setting-item">
+                            <label for="dietaryRestrictions">🚫 Hạn chế ăn uống</label>
+                            <input type="text" id="dietaryRestrictions" placeholder="VD: Không ăn hải sản, chay...">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-large" id="generateMenuBtn">
+                        <span class="btn-icon">✨</span>
+                        <span>Tạo Thực Đơn Tuần</span>
+                    </button>
+                </section>
+
+                <!-- Loading State -->
+                <div class="loading-container" id="loadingState" style="display: none;">
+                    <div class="loader"></div>
+                    <p class="loading-text">AI đang tạo thực đơn tuyệt vời cho bạn...</p>
+                </div>
+
+                <!-- Weekly Menu Display -->
+                <section class="menu-section" id="menuSection" style="display: none;">
+                    <div class="menu-header">
+                        <h2 class="section-title">📅 Thực đơn tuần này</h2>
+                        <div class="menu-actions">
+                            <button class="btn btn-secondary" id="analyzeNutritionBtn">
+                                📊 Phân tích dinh dưỡng
+                            </button>
+                            <button class="btn btn-secondary" id="viewShoppingListBtn">
+                                🛒 Danh sách mua sắm
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="week-summary" id="weekSummary"></div>
+
+                    <div class="days-container" id="daysContainer"></div>
+                </section>
+            </div>
+
+            <!-- Tab: Ingredients -->
+            <div class="tab-content" id="tab-ingredients">
+                <section class="ingredients-section">
+                    <h2 class="section-title">📸 Nhận Diện Nguyên Liệu</h2>
+                    <p class="section-description">Chụp ảnh nguyên liệu có sẵn, AI sẽ gợi ý món ăn phù hợp!</p>
+                    
+                    <!-- Camera Section -->
+                    <div class="camera-container" id="cameraContainer">
+                        <div class="camera-preview" id="cameraPreview">
+                            <video id="cameraVideo" autoplay playsinline></video>
+                            <canvas id="cameraCanvas" style="display: none;"></canvas>
+                            <div class="camera-placeholder" id="cameraPlaceholder">
+                                <div class="camera-icon">📷</div>
+                                <p>Nhấn nút bên dưới để mở camera</p>
+                            </div>
+                        </div>
+                        
+                        <div class="camera-controls">
+                            <button class="btn btn-primary" id="startCameraBtn">
+                                <span class="btn-icon">📷</span>
+                                <span>Mở Camera</span>
+                            </button>
+                            <button class="btn btn-accent" id="capturePhotoBtn" style="display: none;">
+                                <span class="btn-icon">📸</span>
+                                <span>Chụp Ảnh</span>
+                            </button>
+                            <button class="btn btn-secondary" id="switchCameraBtn" style="display: none;">
+                                <span class="btn-icon">🔄</span>
+                                <span>Đổi Camera</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Nhập nguyên liệu thủ công -->
+                    <div class="manual-input-container" style="background: white; padding: 1.5rem; border-radius: var(--radius-xl); box-shadow: var(--shadow-md); margin-bottom: 2rem;">
+                        <h3 style="margin-bottom: 1rem; font-size: 1.2rem;">📝 Hoặc nhập nguyên liệu bạn có:</h3>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                          <input type="text" id="manualIngredientsInput" 
+                           placeholder="VD: 2 quả trứng, rau muống, thịt bò..." 
+                           style="flex: 1; padding: 12px; border: 2px solid var(--border-color); border-radius: var(--radius-lg); font-size: 1rem; min-width: 200px;">
+                          <button class="btn btn-primary" id="analyzeTextBtn">
+                            🔍 Tìm món ăn
+                          </button>
+                        </div>
+                    </div>
+
+                    <!-- AI Analysis Results -->
+                    <div class="analysis-results" id="analysisResults" style="display: none;">
+                        <h3>🔍 AI phát hiện:</h3>
+                        <div class="ingredients-list" id="ingredientsList"></div>
+                        
+                        <h3>💡 Món ăn gợi ý:</h3>
+                        <div class="suggested-dishes" id="suggestedDishes"></div>
+                    </div>
+                    
+                    <!-- Loading State -->
+                    <div class="loading-container" id="ingredientsLoading" style="display: none;">
+                        <div class="loader"></div>
+                        <p class="loading-text">AI đang phân tích nguyên liệu...</p>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Tab: Expenses -->
+            <div class="tab-content" id="tab-expenses">
+                <section class="expenses-section">
+                    <h2 class="section-title">💰 Theo Dõi Chi Tiêu</h2>
+                    
+                    <!-- Weekly Budget Summary -->
+                    <div class="budget-summary-card">
+                        <div class="budget-header">
+                            <h3>📊 Tuần này</h3>
+                            <div class="week-selector">
+                                <button class="btn-icon" id="prevWeekBtn">◀</button>
+                                <span id="currentWeekText">Tuần 50, 2024</span>
+                                <button class="btn-icon" id="nextWeekBtn">▶</button>
+                            </div>
+                        </div>
+                        
+                        <div class="budget-stats">
+                            <div class="budget-row">
+                                <span class="budget-label">Dự toán:</span>
+                                <span class="budget-value" id="budgetPlanned">500,000đ</span>
+                            </div>
+                            <div class="budget-row">
+                                <span class="budget-label">Đã chi:</span>
+                                <span class="budget-value actual" id="budgetActual">0đ</span>
+                            </div>
+                            <div class="budget-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="budgetProgress" style="width: 0%"></div>
+                                </div>
+                                <span class="progress-text" id="budgetPercent">0%</span>
+                            </div>
+                            <div class="budget-row remaining">
+                                <span class="budget-label">Còn lại:</span>
+                                <span class="budget-value" id="budgetRemaining">500,000đ</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                      <h3 style="margin-bottom: 1rem;">📊 Biểu đồ chi tiêu tuần</h3>
+                      <div style="position: relative; height: 300px; width: 100%;">
+                        <canvas id="expenseChart"></canvas>
+                      </div>
+                    </div>
+
+                    <!-- Daily Expenses -->
+                    <div class="daily-expenses-card">
+                        <h3>📅 Chi tiêu từng ngày</h3>
+                        <div class="days-list" id="daysList"></div>
+                    </div>
+                    
+                    <!-- Insights -->
+                    <div class="insights-card" id="insightsCard" style="display: none;">
+                        <h3>💡 Phân tích & Gợi ý</h3>
+                        <div class="insights-list" id="insightsList"></div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Tab: Favorites -->
+            <div class="tab-content" id="tab-favorites">
+                <section class="favorites-section">
+                    <h2 class="section-title">❤️ Món ăn yêu thích</h2>
+                    <div class="favorites-grid" id="favoritesGrid">
+                        <div class="empty-state">
+                            <div class="empty-icon">💝</div>
+                            <p class="empty-text">Chưa có món ăn yêu thích</p>
+                            <p class="empty-subtext">Nhấn vào ❤️ ở món ăn để lưu vào danh sách yêu thích</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Tab: History -->
+            <div class="tab-content" id="tab-history">
+                <section class="history-section">
+                    <h2 class="section-title">📜 Lịch sử thực đơn</h2>
+                    <div class="history-list" id="historyList">
+                        <div class="empty-state">
+                            <div class="empty-icon">📋</div>
+                            <p class="empty-text">Chưa có lịch sử thực đơn</p>
+                            <p class="empty-subtext">Tạo thực đơn mới để bắt đầu</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal: Dish Detail -->
+    <div class="modal" id="dishModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <button class="modal-close">&times;</button>
+            <div class="modal-body" id="dishModalBody"></div>
+        </div>
+    </div>
+
+    <!-- Modal: Recipe Detail -->
+    <div class="modal" id="recipeModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content modal-large">
+            <button class="modal-close">&times;</button>
+            <div class="modal-body" id="recipeModalBody"></div>
+        </div>
+    </div>
+
+    <!-- Modal: Nutrition Analysis -->
+    <div class="modal" id="nutritionModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content modal-large">
+            <button class="modal-close">&times;</button>
+            <div class="modal-body" id="nutritionModalBody"></div>
+        </div>
+    </div>
+
+    <!-- Modal: Shopping List -->
+    <div class="modal" id="shoppingModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <button class="modal-close">&times;</button>
+            <div class="modal-body" id="shoppingModalBody"></div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>🌱 Ăn Xanh - Sống Khỏe - Bảo Vệ Môi Trường 🌍</p>
+            <p>Phát triển bởi <strong>Phan Tấn Tài</strong> - SĐT: 0986155207 - Phường Long Trường</p>
+            <p>Powered by Google Gemini AI 🤖 | Theme: Eco-Friendly 🍃</p>
+        </div>
+    </footer>
+
+    <script src="voice-input.js"></script>
+    <script src="ingredient-recognition.js"></script>
+    <script src="expense-tracking.js"></script>
+    <script src="app.js" defer></script>
+    
+    <!-- Expense Input Modal -->
+    <div class="modal" id="expenseModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>💰 Nhập Chi Tiêu</h2>
+                <button class="modal-close" onclick="closeModal(document.getElementById('expenseModal'))">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="expenseForm">
+                    <div class="form-group">
+                        <label for="expenseDate">📅 Ngày</label>
+                        <input type="date" id="expenseDate" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="expenseAmount">💵 Số tiền (VNĐ)</label>
+                        <input type="number" id="expenseAmount" placeholder="Ví dụ: 150000" required min="0" step="1000">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="expenseNote">📝 Ghi chú (tùy chọn)</label>
+                        <textarea id="expenseNote" rows="3" placeholder="Ví dụ: Thịt bò 120k, Rau củ 30k"></textarea>
+                    </div>
+                    
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal(document.getElementById('expenseModal'))">Hủy</button>
+                        <button type="submit" class="btn btn-primary">💾 Lưu</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Voice Input Modal -->
+    <div class="modal" id="voiceModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🎤 Voice Input</h2>
+                <button class="modal-close" onclick="closeModal(document.getElementById('voiceModal'))">&times;</button>
+            </div>
+            <div class="modal-body" id="voiceModalBody">
+                <div class="voice-status" id="voiceStatus">
+                    <div class="voice-animation">
+                        <div class="voice-wave"></div>
+                        <div class="voice-wave"></div>
+                        <div class="voice-wave"></div>
+                    </div>
+                    <p class="voice-status-text">Nhấn nút bên dưới và bắt đầu nói...</p>
+                </div>
+                
+                <div class="voice-transcript" id="voiceTranscript" style="display: none;">
+                    <h3>📝 Bạn đã nói:</h3>
+                    <p id="transcriptText"></p>
+                </div>
+                
+                <div class="voice-controls">
+                    <button class="btn btn-primary" id="startVoiceBtn">
+                        <span class="btn-icon">🎙️</span>
+                        <span>Bắt Đầu</span>
+                    </button>
+                    <button class="btn btn-secondary" id="stopVoiceBtn" style="display: none;">
+                        <span class="btn-icon">⏹️</span>
+                        <span>Dừng</span>
+                    </button>
+                </div>
+                
+                <div class="voice-examples">
+                    <h4>💡 Ví dụ bạn có thể nói:</h4>
+                    <ul>
+                        <li>"Gia đình 4 người, ngân sách tiết kiệm"</li>
+                        <li>"Thích món miền Nam, không ăn hải sản"</li>
+                        <li>"5 người, trung bình, ít dầu mỡ"</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
